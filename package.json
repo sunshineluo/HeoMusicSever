@@ -1,0 +1,28 @@
+{
+  "name": "videos",
+  "version": "1.0.0",
+  "description": "A simple video streaming server",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [
+    "video",
+    "streaming",
+    "nodejs",
+    "express"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "express-rate-limit": "^7.4.1",
+    "lrc": "^0.1.0",
+    "lrc-parser": "^1.0.1",
+    "multer": "^1.4.5-lts.1",
+    "music-metadata": "^10.5.1",
+    "node-id3": "^0.2.6",
+    "qiniu": "^7.14.0"
+  }
+}
