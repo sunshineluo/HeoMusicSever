@@ -1,5 +1,5 @@
 console.log("\n %c HeoMusic 开源静态音乐播放器 %c https://github.com/zhheo/HeoMusic \n", "color: #fadfa3; background: #030307; padding:5px 0;", "background: #fadfa3; padding:5px 0;")
-console.log("\n %c HeoMusicServer %c https://github.com/sunshineluo/HeoMusicSever \n", "color: #fadfa3; background: #030307; padding:5px 0;", "background: #fadfa3; padding:5px 0;")
+console.log("\n %c HeoMusicSever  %c https://github.com/sunshineluo/HeoMusicSever \n", "color: #fadfa3; background: #030307; padding:5px 0;", "background: #fadfa3; padding:5px 0;")
 var local = false;
 
 if (typeof userId === 'undefined') {
@@ -51,10 +51,10 @@ var volume = 0.8;
 const params = new URLSearchParams(window.location.search);
 
 var heo = {
-  scrollLyric: function() {
+  scrollLyric: function () {
     const lrcContent = document.querySelector('.aplayer-lrc');
     const currentLyric = document.querySelector('.aplayer-lrc-current');
-    
+
     if (lrcContent && currentLyric) {
       let startScrollTop = lrcContent.scrollTop;
       let targetScrollTop = currentLyric.offsetTop - (window.innerHeight - 150) * 0.3; // 目标位置在30%的dvh位置
@@ -81,10 +81,10 @@ var heo = {
     }
   },
 
-  getCustomPlayList: function() {
+  getCustomPlayList: function () {
     const heoMusicPage = document.getElementById("heoMusic-page");
     const playlistType = params.get("type") || "playlist";
-    
+
     if (params.get("id") && params.get("server")) {
       console.log("获取到自定义内容")
       var id = params.get("id")
@@ -95,62 +95,62 @@ var heo = {
       heoMusicPage.innerHTML = `<meting-js id="${userId}" server="${userServer}" type="${userType}" mutex="true" preload="auto" order="random"></meting-js>`;
     }
   },
-  
+
   bindEvents: function () {
     var e = this;
     // 添加歌词点击件
     if (this.lrc) {
-        this.template.lrc.addEventListener('click', function (event) {
-            // 确保点击的是歌词 p 元素
-            var target = event.target;
-            if (target.tagName.toLowerCase() === 'p') {
-                // 获取所有歌词元素
-                var lyrics = e.template.lrc.getElementsByTagName('p');
-                // 找到被点击歌词的索引
-                for (var i = 0; i < lyrics.length; i++) {
-                    if (lyrics[i] === target) {
-                        // 获取对应时间并跳转
-                        if (e.lrc.current[i]) {
-                            var time = e.lrc.current[i][0];
-                            e.seek(time);
-                            if (e.paused) {
-                                e.play();
-                            }
-                        }
-                        break;
-                    }
+      this.template.lrc.addEventListener('click', function (event) {
+        // 确保点击的是歌词 p 元素
+        var target = event.target;
+        if (target.tagName.toLowerCase() === 'p') {
+          // 获取所有歌词元素
+          var lyrics = e.template.lrc.getElementsByTagName('p');
+          // 找到被点击歌词的索引
+          for (var i = 0; i < lyrics.length; i++) {
+            if (lyrics[i] === target) {
+              // 获取对应时间并跳转
+              if (e.lrc.current[i]) {
+                var time = e.lrc.current[i][0];
+                e.seek(time);
+                if (e.paused) {
+                  e.play();
                 }
+              }
+              break;
             }
-        });
+          }
+        }
+      });
     }
   },
   // 添加新方法处理歌词点击
-  addLyricClickEvent: function() {
+  addLyricClickEvent: function () {
     const lrcContent = document.querySelector('.aplayer-lrc-contents');
-    
+
     if (lrcContent) {
-        lrcContent.addEventListener('click', function(event) {
-            if (event.target.tagName.toLowerCase() === 'p') {
-                const lyrics = lrcContent.getElementsByTagName('p');
-                for (let i = 0; i < lyrics.length; i++) {
-                    if (lyrics[i] === event.target) {
-                        // 获取当前播放器实例
-                        const player = local ? ap : document.querySelector('meting-js').aplayer;
-                        // 使用播放器内部的歌词数据
-                        if (player.lrc.current[i]) {
-                            const time = player.lrc.current[i][0];
-                            player.seek(time);
-                            // 如果当前是暂停状态,则恢复播放
-                            if (player.paused) {
-                                player.play();
-                            }
-                        }
-                        event.stopPropagation(); // 阻止事件冒泡
-                        break;
-                    }
+      lrcContent.addEventListener('click', function (event) {
+        if (event.target.tagName.toLowerCase() === 'p') {
+          const lyrics = lrcContent.getElementsByTagName('p');
+          for (let i = 0; i < lyrics.length; i++) {
+            if (lyrics[i] === event.target) {
+              // 获取当前播放器实例
+              const player = ap;
+              // 使用播放器内部的歌词数据
+              if (player.lrc.current[i]) {
+                const time = player.lrc.current[i][0];
+                player.seek(time);
+                // 如果当前是暂停状态,则恢复播放
+                if (player.paused) {
+                  player.play();
                 }
+              }
+              event.stopPropagation(); // 阻止事件冒泡
+              break;
             }
-        });
+          }
+        }
+      });
     }
   },
   setMediaMetadata: function (aplayerObj, isSongPlaying) {
@@ -209,6 +209,15 @@ var heo = {
         aplayer.skipForward();
       });
 
+      // 响应进度条拖动
+      navigator.mediaSession.setActionHandler('seekto', (details) => {
+        if (details.fastSeek && 'fastSeek' in aplayer.audio) {
+          aplayer.audio.fastSeek(details.seekTime);
+        } else {
+          aplayer.audio.currentTime = details.seekTime;
+        }
+      });
+
       // 更新 Media Session 元数据
       aplayer.on('loadeddata', () => {
         heo.setMediaMetadata(aplayer, false);
@@ -239,10 +248,14 @@ var heo = {
         const dominantColor = colorThief.getColor(img);
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
         if (metaThemeColor) {
-          metaThemeColor.setAttribute('content', `rgb(${dominantColor.join(',')})`);
+          // 叠加rgba(0,0,0,0.4)的效果
+          const r = Math.round(dominantColor[0] * 0.6); // 原色 * 0.6 实现叠加黑色透明度0.4的效果
+          const g = Math.round(dominantColor[1] * 0.6);
+          const b = Math.round(dominantColor[2] * 0.6);
+          metaThemeColor.setAttribute('content', `rgb(${r},${g},${b})`);
         }
       };
-    
+
       if (typeof ColorThief === 'undefined') {
         const script = document.createElement('script');
         script.src = './js/color-thief.min.js';
@@ -254,50 +267,34 @@ var heo = {
     }
 
   }
-  
+
 }
 
 //空格控制音乐
-document.addEventListener("keydown", function(event) {
+document.addEventListener("keydown", function (event) {
   //暂停开启音乐
   if (event.code === "Space") {
     event.preventDefault();
-    if (local) {
-      ap.toggle();
-    }else {
-      document.querySelector('meting-js').aplayer.toggle();
-    }
+    ap.toggle();
 
   };
   //切换下一曲
   if (event.keyCode === 39) {
     event.preventDefault();
-    if (local) {
-      ap.skipForward();
-    }else {
-      document.querySelector('meting-js').aplayer.skipForward();
-    }
+    ap.skipForward();
 
   };
   //切换上一曲
   if (event.keyCode === 37) {
     event.preventDefault();
-    if (local) {
-ap.skipBack();
-    }else {
-      document.querySelector('meting-js').aplayer.skipBack();
-    }
+    ap.skipBack();
 
   }
   //增加音量
   if (event.keyCode === 38) {
     if (volume <= 1) {
       volume += 0.1;
-      if (local) {
-        ap.volume(volume,true);
-      }else {
-        document.querySelector('meting-js').aplayer.volume(volume,true);
-      }
+      ap.volume(volume, true);
 
     }
   }
@@ -305,14 +302,20 @@ ap.skipBack();
   if (event.keyCode === 40) {
     if (volume >= 0) {
       volume += -0.1;
-      if (local) {
-        ap.volume(volume,true);
-      }else {
-        document.querySelector('meting-js').aplayer.volume(volume,true);
-      }
-      
+      ap.volume(volume, true);
+
     }
   }
+});
+
+// 监听窗口大小变化
+window.addEventListener('resize', function() {
+  if (window.innerWidth > 768) {
+    ap.list.show();
+  } else {
+    ap.list.hide();
+  }
+
 });
 
 // 调用

@@ -37,7 +37,7 @@ class MetingJSElement extends HTMLElement {
     }
     this.config = config
 
-    this.api = this.meta.api || window.meting_api || 'https://meting-api.2leo.top/?server=:server&type=:type&id=:id&r=:r'
+    this.api = this.meta.api || window.meting_api || 'https://music.zhheo.com/meting-api/?server=:server&type=:type&id=:id&r=:r'
     if (this.meta.auto) this._parse_link()
   }
 
@@ -110,7 +110,8 @@ class MetingJSElement extends HTMLElement {
       audio: data,
       mutex: true,
       lrcType: this.meta.lrcType || 3,
-      storageName: 'metingjs'
+      storageName: 'metingjs',
+      listFolded: window.innerWidth < 768 ? true : false
     }
 
     if (!data.length) return
@@ -130,6 +131,7 @@ class MetingJSElement extends HTMLElement {
     this.appendChild(div)
 
     this.aplayer = new APlayer(options)
+    window.ap = this.aplayer;
 
     heo.setupMediaSessionHandlers(this.aplayer);
   }
