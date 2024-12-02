@@ -154,37 +154,42 @@ var heo = {
     }
   },
   setMediaMetadata: function (aplayerObj, isSongPlaying) {
-    const audio = aplayerObj.list.audios[aplayerObj.list.index]
+    const audio = aplayerObj.list.audios[aplayerObj.list.index];
     const coverUrl = audio.cover || './img/icon.webp';
-    const currentLrcContent = document.getElementById("heoMusic-page").querySelector(".aplayer-lrc-current").textContent;
+  
+    // 获取当前歌词元素
+    const heoMusicPage = document.getElementById("heoMusic-page");
+    const lrcCurrent = heoMusicPage ? heoMusicPage.querySelector(".aplayer-lrc-current") : null;
+  
     let songName, songArtist;
-
-    if ('mediaSession' in navigator) {
-      if (isSongPlaying && currentLrcContent) {
-        songName = currentLrcContent;
-        songArtist = `${audio.artist}/${audio.name}`;
+  
+    // 判断歌词是否有效
+    if (lrcCurrent && lrcCurrent.textContent.trim() !== '') {
+      const currentLrcContent = lrcCurrent.textContent;
+      songName = currentLrcContent; // 使用当前歌词作为歌曲名
+      songArtist = `${audio.artist}/${audio.name}`; // 使用歌曲的歌手和名称
+  
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: songName,
+          artist: songArtist,
+          album: audio.album,
+          artwork: [
+            { src: coverUrl, sizes: '96x96', type: 'image/jpeg' },
+            { src: coverUrl, sizes: '128x128', type: 'image/jpeg' },
+            { src: coverUrl, sizes: '192x192', type: 'image/jpeg' },
+            { src: coverUrl, sizes: '256x256', type: 'image/jpeg' },
+            { src: coverUrl, sizes: '384x384', type: 'image/jpeg' },
+            { src: coverUrl, sizes: '512x512', type: 'image/jpeg' }
+          ]
+        });
       } else {
-        songName = audio.name;
-        songArtist = audio.artist;
+        console.log('当前浏览器不支持 Media Session API');
+        document.title = `${audio.name} - ${audio.artist}`;
       }
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: songName,
-        artist: songArtist,
-        album: audio.album,
-        artwork: [
-          { src: coverUrl, sizes: '96x96', type: 'image/jpeg' },
-          { src: coverUrl, sizes: '128x128', type: 'image/jpeg' },
-          { src: coverUrl, sizes: '192x192', type: 'image/jpeg' },
-          { src: coverUrl, sizes: '256x256', type: 'image/jpeg' },
-          { src: coverUrl, sizes: '384x384', type: 'image/jpeg' },
-          { src: coverUrl, sizes: '512x512', type: 'image/jpeg' }
-        ]
-      });
-    } else {
-      console.log('当前浏览器不支持 Media Session API');
-      document.title = `${audio.name} - ${audio.artist}`;
     }
   },
+  
   // 响应 MediaSession 标准媒体交互
   setupMediaSessionHandlers: function (aplayer) {
     if ('mediaSession' in navigator) {
@@ -255,15 +260,6 @@ var heo = {
           metaThemeColor.setAttribute('content', `rgb(${r},${g},${b})`);
         }
       };
-
-      if (typeof ColorThief === 'undefined') {
-        const script = document.createElement('script');
-        script.src = './js/color-thief.min.js';
-        script.onload = () => updateThemeColor(new ColorThief());
-        document.body.appendChild(script);
-      } else {
-        updateThemeColor(new ColorThief());
-      }
     }
 
   }
